@@ -10,7 +10,7 @@
    <div class="hero__container">
       <h1 class="hero__heading">Calendario De <span>Eventos</span></h1>
       <p class="hero__description">Posibilidades ilimitadass</p>
-      <button class="main__btn"><a href="#">Explore</a></button>
+      <button class="main__btn"><a href="{{url('eventos')}}">Explore</a></button>
    </div>
 </div>
 @endsection

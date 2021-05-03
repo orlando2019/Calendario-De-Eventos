@@ -10,7 +10,7 @@ class Evento extends Model
    use HasFactory;
 
    static $rules = [
-      'title' => 'required|min:5|max:30',
+      'title' => 'required',
       'descripcion' => 'required',
       'start' => 'required',
       'end' => 'required',

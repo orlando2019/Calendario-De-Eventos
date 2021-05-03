@@ -1,20 +1,30 @@
 document.addEventListener("DOMContentLoaded", function () {
-   let formulario = document.querySelector("form");
+   let formulario = document.querySelector("#formularioEventos");
 
    var calendarEl = document.getElementById("agenda");
 
    var calendar = new FullCalendar.Calendar(calendarEl, {
       initialView: "dayGridMonth",
       locale: "es",
+      displayEventTime: false,
       timeZone: "America/Bogota",
       themeSystem: "bootstrap",
+      height: "auto",
 
       headerToolbar: {
          left: "prev,next today",
          center: "title",
-         right: "dayGridMonth timeGridWeek,listWeet",
+         right: "dayGridMonth",
       },
-      events: "http://localhost/agenda/public/eventos/mostrar",
+      //events: baseUrl + "/eventos/mostrar",
+
+      eventSources: {
+         url: baseUrl + "/eventos/mostrar",
+         method: "POST",
+         extraParams: {
+            _token: formulario._token.value,
+         },
+      },
 
       dateClick: function (info) {
          var check = info.dateStr;
@@ -36,7 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
          //console.log(evento);
 
          axios
-            .post("http://localhost/agenda/public/eventos/editar/" + evento.id)
+            .post(baseUrl + "/eventos/editar/" + evento.id)
             .then((repuesta) => {
                formulario.id.value = repuesta.data.id;
                formulario.title.value = repuesta.data.title;
@@ -65,26 +75,30 @@ document.addEventListener("DOMContentLoaded", function () {
       if (End < Star) {
          alert("!ERROR! La Fecha final No Puede Ser Menor A La Fecha Inicial");
       } else if (Star < today) {
-         alert("!No se pueden crear eventos en el pasado!!!!!");
+         alert("!ERROR! La Fecha inicial no puede ser menor a la fecha actual");
       } else {
-         //enviarDatos("http://localhost/agenda/public/eventos/agregar");
+         enviarDatos("/eventos/agregar");
       }
    });
 
    document
       .getElementById("btnEliminar")
       .addEventListener("click", function () {
-         enviarDatos(
-            "http://localhost/agenda/public/eventos/eliminar/" +
-               formulario.id.value
-         );
+         enviarDatos("/eventos/eliminar/" + formulario.id.value);
+      });
+
+   document
+      .getElementById("btnModificar")
+      .addEventListener("click", function () {
+         enviarDatos("/eventos/actualizar/" + formulario.id.value);
       });
 
    function enviarDatos(url) {
       const datos = new FormData(formulario);
+      const nuevaUrl = baseUrl + url;
 
       axios
-         .post(url, datos)
+         .post(nuevaUrl, datos)
          .then((repuesta) => {
             calendar.refetchEvents();
             $("#evento").modal("hide");
@@ -96,12 +110,13 @@ document.addEventListener("DOMContentLoaded", function () {
          });
    }
 
+   //VALIDACIONES DE BOOTSTRAP
    (function () {
       "use strict";
       var forms = document.querySelectorAll(".needs-validation");
       Array.prototype.slice.call(forms).forEach(function (form) {
          form.addEventListener(
-            "submit",
+            "click",
             function (event) {
                if (!form.checkValidity()) {
                   event.preventDefault();
